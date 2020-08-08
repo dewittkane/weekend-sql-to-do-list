@@ -2,7 +2,7 @@ const pg = require('pg');
 //requires pg into the file
 
 const pool = new pg.Pool({
-    database: 'to_do_list',
+    database: 'weekend_to_do_app',
     host: 'localhost',
     port: 5432
 });//constructs a new pool that links to our Postgres DB

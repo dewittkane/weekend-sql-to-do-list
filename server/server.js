@@ -10,4 +10,5 @@ app.listen(PORT, () => {
 //server boilerplate
 
 const listRouter = require('./routes/list.router.js')
-app.use('/   ROUTE      ', listRouter)
+app.use('/list', listRouter)
+//routes /list requests to appropriate router
