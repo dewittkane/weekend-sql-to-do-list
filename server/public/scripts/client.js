@@ -2,7 +2,8 @@ $(document).ready(function(){
     getTodoList();
     //populates dom on page load
 
-    $('#submitBtn').on('click', postToList)
+    $('#submitBtn').on('click', postToList);
+    $('#taskList').on('click', '.deleteBtn', deleteFromList);
     //click listeners!
 
 });
@@ -54,8 +55,23 @@ function postToList(){
 };//sends ajax to DB to add item to list
 
 function deleteFromList(){
+    idToBeDeleted = $(this).parent().data('task-id');
+    console.log('ID of task to be deleted:', idToBeDeleted);
+    //grabs id from data attribute of clicked element
 
-}
+    $.ajax({
+        method: 'DELETE',
+        url: `/list/${idToBeDeleted}`
+    }).then(function(response) {
+        console.log('back to client from delete request. Response:', response);
+        getTodoList();
+        //runs GET request to redisplay DOM with new information
+
+      }).catch(function(error) {
+        console.log('error coming back to client from delete.  Error:', error)
+      });
+    
+};//sends ajax to DB to delete the item clicked on
 
 function renderList(taskList){
     $('#taskList').empty();
