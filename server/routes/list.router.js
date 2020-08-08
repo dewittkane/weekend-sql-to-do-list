@@ -19,6 +19,26 @@ router.get('/', (req, res) => {
     });
   });//routes ajax GET request to the DB
 
-
+  router.post('/',  (req, res) => {
+    let newTask = req.body;
+    console.log(`Adding task`, newTask);
+    /* expected object = {
+        task: 'Input Value'
+    }
+    */
+  
+    let queryText = `INSERT INTO "tasks" ("task")
+                     VALUES ($1);`;
+                    //Data ~*~*~*~Sanitization~*~*~*~, prevents SQL injection
+    pool.query(queryText, [newTask.task])
+      .then(result => {
+        res.sendStatus(201);
+        //sends AOK status back if posted successfully
+      })
+      .catch(error => {
+        console.log(`Error adding new task`, error);
+        res.sendStatus(500);
+      });
+  });
 
 module.exports = router;
