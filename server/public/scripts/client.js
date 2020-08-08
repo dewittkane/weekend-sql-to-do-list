@@ -7,6 +7,7 @@ $(document).ready(function(){
 
 });
 
+
 function getTodoList(){
     console.log('Getting Todo List from DB!');
 
@@ -42,6 +43,8 @@ function postToList(){
             getTodoList();
             //runs GET request to redisplay DOM with new information
 
+            clearInput();
+            //clears input to add a new task
 
         }).catch(function(error) {
           console.log('Error in POST', error)
@@ -50,13 +53,26 @@ function postToList(){
 
 };//sends ajax to DB to add item to list
 
+function deleteFromList(){
+
+}
+
 function renderList(taskList){
     $('#taskList').empty();
     //clears DOM before appending information
 
     for (let i = 0; i < taskList.length; i++) {
         $('#taskList').append(`
-        <li><input type="checkbox" class="completed">${taskList[i].task}</li>
+        <li data-task-id="${taskList[i].id}">
+        <input type="checkbox" class="completed">
+        ${taskList[i].task}
+        <img src="./images/edit-icon.svg" class="editBtn" alt="edit icon"/>
+        <img src="./images/trash-icon.svg" class="deleteBtn" alt="delete icon"/>
+        </li>
         `);
     }
-}//loops through tasklist from DB and appends each item to the dom
+};//loops through tasklist from DB and appends each item to the dom
+
+function clearInput(){
+    $('#taskIn').val('');
+}//clears task input
