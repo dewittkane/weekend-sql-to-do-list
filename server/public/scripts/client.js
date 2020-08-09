@@ -62,7 +62,7 @@ function deleteFromList(){
 
     let status = $(this).parent().data('completed');
     let text;
-    
+
     if (status) {
         text = "Looks like you've wrapped this up, want to remove it from the list?"
     } else {
@@ -95,7 +95,6 @@ function deleteFromList(){
 
         } else {
           swal("Got it, keep working on it!");
-          return false
         }
       });
     
