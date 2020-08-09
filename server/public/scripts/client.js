@@ -56,20 +56,47 @@ function postToList(){
 };//sends ajax to DB to add item to list
 
 function deleteFromList(){
-    idToBeDeleted = $(this).parent().data('task-id');
+    let idToBeDeleted = $(this).parent().data('task-id');
     console.log('ID of task to be deleted:', idToBeDeleted);
     //grabs id from data attribute of clicked element
 
-    $.ajax({
-        method: 'DELETE',
-        url: `/list/${idToBeDeleted}`
-    }).then(function(response) {
-        console.log('back to client from delete request. Response:', response);
-        getTodoList();
-        //runs GET request to redisplay DOM with new information
+    let status = $(this).parent().data('completed');
+    let text;
+    
+    if (status) {
+        text = "Looks like you've wrapped this up, want to remove it from the list?"
+    } else {
+        text = "Are you sure you want to remove this from the list? You haven't checked it off yet!"
+    };//creates different alert text based on status
 
-      }).catch(function(error) {
-        console.log('error coming back to client from delete.  Error:', error)
+    swal({
+        title: "For real?",
+        text: text,
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+      .then((willDelete) => {
+        if (willDelete) {
+          swal("Woosh! Consider that task DONE.", {
+            icon: "success"});
+
+            $.ajax({
+                method: 'DELETE',
+                url: `/list/${idToBeDeleted}`
+            }).then(function(response) {
+                console.log('Successfully back to client from delete request');
+                getTodoList();
+                //runs GET request to redisplay DOM with new information
+        
+              }).catch(function(error) {
+                console.log('Error coming back to client from delete request')
+              });
+
+        } else {
+          swal("Got it, keep working on it!");
+          return false
+        }
       });
     
 };//sends ajax to DB to delete the item clicked on
