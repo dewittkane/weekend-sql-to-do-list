@@ -4,10 +4,52 @@ $(document).ready(function(){
 
     $('#submitBtn').on('click', postToList);
     $('#taskList').on('click', '.deleteBtn', deleteFromList);
-    $('#taskList').on('change', '.completed', toggleComplete)
+    $('#taskList').on('click', '.editBtn', editTask);
+    $('#taskList').on('change', '.completed', toggleComplete);
+    $('#taskList').on('click', '.confirmEdit', putEdit);
+    $('#taskList').on('click', '.cancelEdit', getTodoList);
+    //cancel changes simply reloads the original info from the DB, using the same get function
     //click listeners!
-
 });
+
+function editTask(){
+    let rowElement = $(this).parent().parent()
+    let originalText = rowElement.children('.task').text();
+    //saves original text and a row reference
+
+    rowElement.children('td').remove();
+    rowElement.append(`
+    <td colspan="3"><input id=${rowElement.data('task-id')} type="text"/><button class="confirmEdit">Confirm</button><button class="cancelEdit">Cancel</button><td>`)
+    $(`#${rowElement.data('task-id')}`).val(originalText);
+    //appends new interface to the TR allowing edit
+};
+
+function putEdit(){
+
+    let id = $(this).parent().parent().data('task-id')
+    let newText = {
+        text: $(this).parent().children(`#${id}`).val()
+        };
+    console.log(`ID of ${id} text to be replaced with ${newText.text}`);
+    
+    if (newText == '') {
+        swal('Please enter some text for the task. Want to get it off of the list? Try the delete button!')
+    } else {
+        $.ajax({
+            method: 'PUT',
+            url: `/edittask/${id}`,
+            data: newText
+        }).then(function(response) {
+            console.log('Successfully back to client from edit request');
+            getTodoList();
+            //runs GET request to redisplay DOM with new information
+    
+          }).catch(function(error) {
+            console.log('Error coming back to client from edit request')
+          });
+    };
+}
+
 
 
 function getTodoList(){
@@ -105,7 +147,7 @@ function renderList(taskList){
     //clears DOM before appending information
 
     for (let i = 0; i < taskList.length; i++) {
-        let $htmlToAppend = $(`<li data-task-id="${taskList[i].id}" data-completed="${taskList[i].completed}">`)
+        let $htmlToAppend = $(`<tr data-task-id="${taskList[i].id}" data-completed="${taskList[i].completed}">`)
 
         if (taskList[i].completed) {
             $('<input>', {
@@ -121,10 +163,10 @@ function renderList(taskList){
         //this line feels messy but I couldn't think of a better way to do it.
         //jquery seems to be particular about spawning checkboxes already checked.
         
-        $htmlToAppend.append(`${taskList[i].task}
-        <img src="./images/edit-icon.svg" class="editBtn" alt="edit icon"/>
-        <img src="./images/trash-icon.svg" class="deleteBtn" alt="delete icon"/>
-        </li>`);
+        $htmlToAppend.append(`<td class="task">${taskList[i].task}</td>
+        <td><img src="./images/edit-icon.svg" class="editBtn" alt="edit icon"/></td>
+        <td><img src="./images/trash-icon.svg" class="deleteBtn" alt="delete icon"/></td>
+        </tr>`);
         //this whole section creates one line of html to be appended for each item in the loops
 
         $('#taskList').append($htmlToAppend);
@@ -134,18 +176,28 @@ function renderList(taskList){
 
 function toggleComplete(){
     let idToBeToggled = $( this ).parent().data( 'task-id' );
-    let status = $( this ).parent().data( 'completed' );
-    console.log( `in toggleComplete: item with id ${idToBeToggled} is completed: ${!status}.`);
+    let status = false;
+    if ($(this).prop('checked')){
+        status = true;
+    };
+
+    console.log( `in toggleComplete: item with id ${idToBeToggled} is completed: ${status}.`);
     //checks to see what task was clicked on and if the task is completed or not
 
     $.ajax({
         method: 'PUT',
         url: `/list/${ idToBeToggled }`,
-        data: { newStatus: !status}
+        data: { newStatus: status}
     }).then( function( response ){
         console.log( 'Successfully back to client from put request.');
-        getTodoList();
+        //getTodoList();
         //runs GET request to redisplay DOM with new information
+        //EDIT 1: I want to leave the checkbox visible while editing text and that brought up issues with reloading while typing another edit
+        //I decided to remove the page refresh since the data will be visually correct, and it will be sent to the DB when clicked (realized this page refresh, if working properly, wouldnt show anything different)
+        //this way it will continue to toggle completion, even mid text edit
+        //EDIT 2: I was wrong, it leaves the checkboxes value the same, so you aren't able to toggle again until DOM reloads.  Will try assigning true value to whether box is checked out not?
+        //EDIT 3: I'm in too deep.
+        //EDIT 4, final?: Found a solution that just leaves the same button instead of trying to make a new one.  Way cleaner.
 
     }).catch( function (error){
         alert( 'Error coming back to client from put request.');
