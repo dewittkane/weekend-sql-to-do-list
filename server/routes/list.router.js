@@ -42,10 +42,12 @@ router.post('/', (req, res) => {
 router.delete('/:id', (req, res) => {
     let id = req.params.id; // id of the thing to delete
     console.log('Delete route called with id of', id);
+
     let query = `
     DELETE FROM "tasks"
     WHERE "id" = $1;
     `
+
     pool.query(query, [id])
         .then((response) => {
             console.log(response);
@@ -54,5 +56,19 @@ router.delete('/:id', (req, res) => {
             res.sendStatus(500);
         });
 });//routes ajax DELETE request to the DB
+
+router.put( '/:id', ( req, res )=>{
+    console.log( 'Put route called:', req.params.id, req.body );
+    const query = `UPDATE "tasks" SET completed=$1 WHERE id=$2;`;
+    const values =[ req.body.newStatus, req.params.id ];
+
+    pool.query( query, values ).then( (response)=>{
+        console.log(response);
+        res.sendStatus( 200 );
+    }).catch( ( error )=>{
+        console.log( 'error with update:', error );
+        res.sendStatus( 500 );
+    })
+})//routes ajax PUT request to the DB
 
 module.exports = router;
