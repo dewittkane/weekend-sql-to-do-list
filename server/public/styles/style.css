@@ -1,5 +1,5 @@
 .strikethrough {
-    text-decoration: line-through black wavy;
+    text-decoration: line-through black solid;
   }
 
 .box {
@@ -7,7 +7,7 @@
 }
 
 input[type="checkbox"] {
-    transform:scale(2.5, 2.5);
+    transform:scale(2, 2);
   }
 
 .header {
@@ -39,4 +39,16 @@ td {
 
 .editIn {
     width: 100%;
+}
+
+#quoteCard {
+    color: teal;
+    text-align: center;
+    margin: 0 auto; /* Added */
+    float: none; /* Added */
+    margin-bottom: 10px; /* Added */
+}
+
+#taskIn {
+    width: 50%;
 }

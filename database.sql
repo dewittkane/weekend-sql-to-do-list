@@ -3,6 +3,10 @@ CREATE TABLE "tasks"(
 	"id" SERIAL PRIMARY KEY,
 	"task" VARCHAR (250) NOT NULL,
 	"completed" BOOLEAN DEFAULT false,
-	"created_day" DATE,
-    "finished_day" DATE
 );
+
+INSERT INTO "tasks"("task", "completed")
+VALUES ('Wake up early', true),
+('Drink some coffee', true),
+('Go for a run', false),
+('Give DeWitt an Exceeds Expectations!', false);
