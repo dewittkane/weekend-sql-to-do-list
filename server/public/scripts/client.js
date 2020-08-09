@@ -17,9 +17,9 @@ function editTask(){
     let originalText = rowElement.children('.task').text();
     //saves original text and a row reference
 
-    rowElement.children('td').remove();
+    rowElement.children('.notBox').remove();
     rowElement.append(`
-    <td colspan="3"><input id=${rowElement.data('task-id')} type="text"/><button class="confirmEdit">Confirm</button><button class="cancelEdit">Cancel</button><td>`)
+    <td colspan="3"><input id=${rowElement.data('task-id')} type="text"/><button class="confirmEdit">Confirm</button><button class="cancelEdit">Cancel</button></td>`)
     $(`#${rowElement.data('task-id')}`).val(originalText);
     //appends new interface to the TR allowing edit
 };
@@ -98,7 +98,7 @@ function postToList(){
 };//sends ajax to DB to add item to list
 
 function deleteFromList(){
-    let idToBeDeleted = $(this).parent().data('task-id');
+    let idToBeDeleted = $(this).parent().parent().data('task-id');
     console.log('ID of task to be deleted:', idToBeDeleted);
     //grabs id from data attribute of clicked element
 
@@ -120,7 +120,7 @@ function deleteFromList(){
       })
       .then((willDelete) => {
         if (willDelete) {
-          swal("Woosh! Consider that task DONE.", {
+          swal("Woosh! Consider that task GONE.", {
             icon: "success"});
 
             $.ajax({
@@ -147,39 +147,45 @@ function renderList(taskList){
     //clears DOM before appending information
 
     for (let i = 0; i < taskList.length; i++) {
-        let $htmlToAppend = $(`<tr data-task-id="${taskList[i].id}" data-completed="${taskList[i].completed}">`)
+        $('#taskList').append(`<tr id="${taskList[i].id}" data-task-id="${taskList[i].id}" data-completed="${taskList[i].completed}">
+        <td class="box"></td>
+        <td class="task notBox">${taskList[i].task}</td>
+        <td class="notBox"><img src="./images/edit-icon.svg" class="editBtn" alt="edit icon"/></td>
+        <td class="notBox"><img src="./images/trash-icon.svg" class="deleteBtn" alt="delete icon"/></td>
+        </tr>`);
+        //this whole section creates one line of html to be appended for each item in the loops
 
         if (taskList[i].completed) {
             $('<input>', {
                 type:"checkbox",
                 "checked":"checked",
                 class:"completed"
-        }).appendTo($htmlToAppend)} else {
+        }).appendTo($(`#${taskList[i].id}`).children(".box"))
+        //applies a checked box
+
+        $('#taskList').find(`#${taskList[i].id}`).children('.task').addClass('strikethrough')
+        //gives task strikethrough class
+
+        } else {
             $('<input>', {
                 type:"checkbox",
                 class:"completed"
-        }).appendTo($htmlToAppend)};
-        //displays checkbox as checked on page load if task is already completed
-        //this line feels messy but I couldn't think of a better way to do it.
-        //jquery seems to be particular about spawning checkboxes already checked.
-        
-        $htmlToAppend.append(`<td class="task">${taskList[i].task}</td>
-        <td><img src="./images/edit-icon.svg" class="editBtn" alt="edit icon"/></td>
-        <td><img src="./images/trash-icon.svg" class="deleteBtn" alt="delete icon"/></td>
-        </tr>`);
-        //this whole section creates one line of html to be appended for each item in the loops
-
-        $('#taskList').append($htmlToAppend);
+        }).appendTo($(`#${taskList[i].id}`).children(".box"))};
+        // //displays checkbox as checked on page load if task is already completed
+        // //this line feels messy but I couldn't think of a better way to do it.
+        // //jquery seems to be particular about spawning checkboxes already checked.
 
     }
 };//loops through tasklist from DB and appends each item to the dom
 
 function toggleComplete(){
-    let idToBeToggled = $( this ).parent().data( 'task-id' );
+    let idToBeToggled = $( this ).parent().parent().data( 'task-id' );
     let status = false;
     if ($(this).prop('checked')){
         status = true;
     };
+    $(this).parent().parent().children('.task').toggleClass('strikethrough')
+
 
     console.log( `in toggleComplete: item with id ${idToBeToggled} is completed: ${status}.`);
     //checks to see what task was clicked on and if the task is completed or not
