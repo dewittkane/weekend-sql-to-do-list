@@ -8,34 +8,46 @@ $(document).ready(function(){
     $('#taskList').on('change', '.completed', toggleComplete);
     $('#taskList').on('click', '.confirmEdit', putEdit);
     $('#taskList').on('click', '.cancelEdit', getTodoList);
+    //cancel changes simply reloads the original info from the DB, using the same get function
     //click listeners!
 });
 
 function editTask(){
     let rowElement = $(this).parent().parent()
-    // let idToBeEdited = rowElement.data('task-id');
     let originalText = rowElement.children('.task').text();
-    // let completed = rowElement.data('completed');
-    //saves original id, text, and completion
+    //saves original text and a row reference
+
     rowElement.children('td').remove();
     rowElement.append(`
     <td colspan="3"><input id=${rowElement.data('task-id')} type="text"/><button class="confirmEdit">Confirm</button><button class="cancelEdit">Cancel</button><td>`)
     $(`#${rowElement.data('task-id')}`).val(originalText);
-    if (rowElement.data('completed') === true) {
-        rowElement.closest('.completed').prop( "checked", true)
-    };
     //appends new interface to the TR allowing edit
 };
 
 function putEdit(){
-    let newText = $(this).parent().children('input').text();
-    console.log(newText);
+
+    let id = $(this).parent().parent().data('task-id')
+    let newText = {
+        text: $(this).parent().children(`#${id}`).val()
+        };
+    console.log(`ID of ${id} text to be replaced with ${newText.text}`);
     
-    // if 
-    // $.ajax({
-    //     method: 'PUT'
-    //     url: `/edittask/${$(this).}`
-    // })
+    if (newText == '') {
+        swal('Please enter some text for the task. Want to get it off of the list? Try the delete button!')
+    } else {
+        $.ajax({
+            method: 'PUT',
+            url: `/edittask/${id}`,
+            data: newText
+        }).then(function(response) {
+            console.log('Successfully back to client from edit request');
+            getTodoList();
+            //runs GET request to redisplay DOM with new information
+    
+          }).catch(function(error) {
+            console.log('Error coming back to client from edit request')
+          });
+    };
 }
 
 
@@ -175,7 +187,7 @@ function toggleComplete(){
     $.ajax({
         method: 'PUT',
         url: `/list/${ idToBeToggled }`,
-        data: { newStatus: !status}
+        data: { newStatus: status}
     }).then( function( response ){
         console.log( 'Successfully back to client from put request.');
         //getTodoList();

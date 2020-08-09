@@ -12,3 +12,7 @@ app.listen(PORT, () => {
 const listRouter = require('./routes/list.router.js')
 app.use('/list', listRouter)
 //routes /list requests to appropriate router
+
+const editTaskRouter = require('./routes/edittask.router.js')
+app.use('/edittask', editTaskRouter)
+//routes /edittask requests to appropriate router
