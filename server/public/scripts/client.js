@@ -16,19 +16,20 @@ function editTask(){
     let rowElement = $(this).parent().parent()
     let originalText = rowElement.children('.task').text();
     //saves original text and a row reference
-
+    console.log(originalText);
+    
     rowElement.children('.notBox').remove();
     rowElement.append(`
-    <td colspan="3"><input id=${rowElement.data('task-id')} type="text"/><button class="confirmEdit">Confirm</button><button class="cancelEdit">Cancel</button></td>`)
-    $(`#${rowElement.data('task-id')}`).val(originalText);
+    <td><input class="editIn" type="text"/></td><td><button class="confirmEdit">Confirm</button></td><td><button class="cancelEdit">Cancel</button></td>`)
+    rowElement.find('.editIn').val(originalText);
     //appends new interface to the TR allowing edit
 };
 
 function putEdit(){
 
-    let id = $(this).parent().parent().data('task-id')
+    let id = $(this).parent().parent().data('task-id');
     let newText = {
-        text: $(this).parent().children(`#${id}`).val()
+        text: $(this).parent().parent().find(`.editIn`).val()
         };
     console.log(`ID of ${id} text to be replaced with ${newText.text}`);
     
@@ -76,7 +77,9 @@ function postToList(){
     };
     console.log('Task to add:', taskToAdd);
     //extracts value from the input and sets it value as an object
-
+    if (taskToAdd.task === ''){
+        swal('Putting empty tasks on your to do list seems like cheating... Try putting some TASK in your task!')
+    } else {
     $.ajax({
         type: 'POST',
         url: '/list',
@@ -94,7 +97,7 @@ function postToList(){
           console.log('Error in POST', error)
           alert('Issue adding item to task list. Please contact a system administrator.');
         });
-
+    };
 };//sends ajax to DB to add item to list
 
 function deleteFromList(){
