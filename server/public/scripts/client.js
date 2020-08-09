@@ -123,8 +123,6 @@ function deleteFromList(){
       })
       .then((willDelete) => {
         if (willDelete) {
-          swal("Woosh! Consider that task GONE.", {
-            icon: "success"});
 
             $.ajax({
                 method: 'DELETE',
@@ -138,8 +136,6 @@ function deleteFromList(){
                 console.log('Error coming back to client from delete request')
               });
 
-        } else {
-          swal("Got it, keep working on it!");
         }
       });
     
@@ -148,6 +144,9 @@ function deleteFromList(){
 function renderList(taskList){
     $('#taskList').empty();
     //clears DOM before appending information
+    
+    displayMotivation(taskList);
+    //dynamic motivation!
 
     for (let i = 0; i < taskList.length; i++) {
         $('#taskList').append(`<tr id="${taskList[i].id}" data-task-id="${taskList[i].id}" data-completed="${taskList[i].completed}">
@@ -199,7 +198,7 @@ function toggleComplete(){
         data: { newStatus: status}
     }).then( function( response ){
         console.log( 'Successfully back to client from put request.');
-        //getTodoList();
+        getTodoList();
         //runs GET request to redisplay DOM with new information
         //EDIT 1: I want to leave the checkbox visible while editing text and that brought up issues with reloading while typing another edit
         //I decided to remove the page refresh since the data will be visually correct, and it will be sent to the DB when clicked (realized this page refresh, if working properly, wouldnt show anything different)
@@ -207,6 +206,8 @@ function toggleComplete(){
         //EDIT 2: I was wrong, it leaves the checkboxes value the same, so you aren't able to toggle again until DOM reloads.  Will try assigning true value to whether box is checked out not?
         //EDIT 3: I'm in too deep.
         //EDIT 4, final?: Found a solution that just leaves the same button instead of trying to make a new one.  Way cleaner.
+        //EDIT 5: I want the quote to refresh when task is completed, going to sacrifice a refresh mid edit at this point.
+
 
     }).catch( function (error){
         alert( 'Error coming back to client from put request.');
@@ -216,3 +217,54 @@ function toggleComplete(){
 function clearInput(){
     $('#taskIn').val('');
 };//clears task input
+
+function displayMotivation(taskList){
+    let area = $('#motivationalArea')
+    area.empty()
+    console.log(taskList.length);
+    let completeTasks = [];
+    let incompleteTasks = [];
+    for (const task of taskList) {
+        if ( task.completed ) {
+            completeTasks.push(task)
+        } else {
+            incompleteTasks.push(task)
+        }
+    };
+
+
+    let randomIncompleteTaskNumber = Math.ceil(Math.random() * incompleteTasks.length)
+    let randomIncompleteTask;
+    let randomCompleteTaskNumber = Math.ceil(Math.random() * completeTasks.length)
+    let randomCompleteTask;
+    if (completeTasks.length) {
+        randomCompleteTask = completeTasks[randomCompleteTaskNumber - 1].task
+    };
+    if (incompleteTasks.length) {
+        randomIncompleteTask = incompleteTasks[randomIncompleteTaskNumber - 1].task
+    };
+
+    let quotes = [
+        `Wondering where to start? I bet you could knock out "${randomIncompleteTask}" easy!`,
+        `"${randomIncompleteTask}" looks tough, I'd do that last... Try starting with something smaller?`,
+        `Hmm... I bet "${randomIncompleteTask}" could wait till tomorrow.. or the day after..`,
+        `Not much left on your list! Maybe do "${randomIncompleteTask}" real quick, then take a break?`,
+        `This list might seem overwhelming - Dane always suggests taking a break.  Try that, then tackle "${randomIncompleteTask}"!`,
+        `You showed "${randomCompleteTask}" who is boss! What are you gonna do next? You can do anything!`,
+        `No need to worry about "${randomCompleteTask}" anymore! Great Job!`,
+        `Knocking out tasks like nobody's business.  Remember when you were worried about doing "${randomCompleteTask}"? Done now!`,
+        `If you can handle "${randomCompleteTask}", I bet "${randomIncompleteTask}" will be no problem at all!`
+        ];
+    
+    let randomQuoteNum = Math.ceil(Math.random() * (quotes.length))
+
+    if (incompleteTasks.length === 0){
+        let finishedQuote ="Looks like you've got nothing else to do! Crack open a cold one, put your feet up, and rest. You deserve it!";
+        area.text(finishedQuote)
+    } else if (completeTasks.length === 0){
+        let finishedQuote =`Looks like you haven't finished anything on your list yet, try starting with "${randomIncompleteTask}".`;
+        area.text(finishedQuote)
+    } else {
+        area.text(`${quotes[randomQuoteNum - 1]}`)
+    };
+}

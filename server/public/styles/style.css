@@ -28,6 +28,8 @@ h1 {
 
 td {
     text-align: center;
+    height: 55px;
+    vertical-align: middle;
 }
 
 .task {
