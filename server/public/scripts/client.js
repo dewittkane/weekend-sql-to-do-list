@@ -6,16 +6,39 @@ $(document).ready(function(){
     $('#taskList').on('click', '.deleteBtn', deleteFromList);
     $('#taskList').on('click', '.editBtn', editTask);
     $('#taskList').on('change', '.completed', toggleComplete);
+    $('#taskList').on('click', '.confirmEdit', putEdit);
+    $('#taskList').on('click', '.cancelEdit', getTodoList);
     //click listeners!
 });
 
 function editTask(){
-    let idToBeEdited = $(this).parent().data('task-id');
-    let originalText = $(this).parent().parent().children('.task').text();
-    $(this).parent().parent().html(`
-    <td colspan="4"><input id=${idToBeEdited} type="text"/><button class="confirmEdit">Confirm</button><button class="cancelEdit">Cancel</button><td>`)
-    $(`#${idToBeEdited}`).val(originalText);
+    let rowElement = $(this).parent().parent()
+    // let idToBeEdited = rowElement.data('task-id');
+    let originalText = rowElement.children('.task').text();
+    // let completed = rowElement.data('completed');
+    //saves original id, text, and completion
+    rowElement.children('td').remove();
+    rowElement.append(`
+    <td colspan="3"><input id=${rowElement.data('task-id')} type="text"/><button class="confirmEdit">Confirm</button><button class="cancelEdit">Cancel</button><td>`)
+    $(`#${rowElement.data('task-id')}`).val(originalText);
+    if (rowElement.data('completed') === true) {
+        rowElement.closest('.completed').prop( "checked", true)
+    };
+    //appends new interface to the TR allowing edit
+};
+
+function putEdit(){
+    let newText = $(this).parent().children('input').text();
+    console.log(newText);
+    
+    // if 
+    // $.ajax({
+    //     method: 'PUT'
+    //     url: `/edittask/${$(this).}`
+    // })
 }
+
+
 
 function getTodoList(){
     console.log('Getting Todo List from DB!');
@@ -141,8 +164,12 @@ function renderList(taskList){
 
 function toggleComplete(){
     let idToBeToggled = $( this ).parent().data( 'task-id' );
-    let status = $( this ).parent().data( 'completed' );
-    console.log( `in toggleComplete: item with id ${idToBeToggled} is completed: ${!status}.`);
+    let status = false;
+    if ($(this).prop('checked')){
+        status = true;
+    };
+
+    console.log( `in toggleComplete: item with id ${idToBeToggled} is completed: ${status}.`);
     //checks to see what task was clicked on and if the task is completed or not
 
     $.ajax({
@@ -151,8 +178,14 @@ function toggleComplete(){
         data: { newStatus: !status}
     }).then( function( response ){
         console.log( 'Successfully back to client from put request.');
-        getTodoList();
+        //getTodoList();
         //runs GET request to redisplay DOM with new information
+        //EDIT 1: I want to leave the checkbox visible while editing text and that brought up issues with reloading while typing another edit
+        //I decided to remove the page refresh since the data will be visually correct, and it will be sent to the DB when clicked (realized this page refresh, if working properly, wouldnt show anything different)
+        //this way it will continue to toggle completion, even mid text edit
+        //EDIT 2: I was wrong, it leaves the checkboxes value the same, so you aren't able to toggle again until DOM reloads.  Will try assigning true value to whether box is checked out not?
+        //EDIT 3: I'm in too deep.
+        //EDIT 4, final?: Found a solution that just leaves the same button instead of trying to make a new one.  Way cleaner.
 
     }).catch( function (error){
         alert( 'Error coming back to client from put request.');
