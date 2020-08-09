@@ -4,11 +4,18 @@ $(document).ready(function(){
 
     $('#submitBtn').on('click', postToList);
     $('#taskList').on('click', '.deleteBtn', deleteFromList);
-    $('#taskList').on('change', '.completed', toggleComplete)
+    $('#taskList').on('click', '.editBtn', editTask);
+    $('#taskList').on('change', '.completed', toggleComplete);
     //click listeners!
-
 });
 
+function editTask(){
+    let idToBeEdited = $(this).parent().data('task-id');
+    let originalText = $(this).parent().parent().children('.task').text();
+    $(this).parent().parent().html(`
+    <td colspan="4"><input id=${idToBeEdited} type="text"/><button class="confirmEdit">Confirm</button><button class="cancelEdit">Cancel</button><td>`)
+    $(`#${idToBeEdited}`).val(originalText);
+}
 
 function getTodoList(){
     console.log('Getting Todo List from DB!');
@@ -105,7 +112,7 @@ function renderList(taskList){
     //clears DOM before appending information
 
     for (let i = 0; i < taskList.length; i++) {
-        let $htmlToAppend = $(`<li data-task-id="${taskList[i].id}" data-completed="${taskList[i].completed}">`)
+        let $htmlToAppend = $(`<tr data-task-id="${taskList[i].id}" data-completed="${taskList[i].completed}">`)
 
         if (taskList[i].completed) {
             $('<input>', {
@@ -121,10 +128,10 @@ function renderList(taskList){
         //this line feels messy but I couldn't think of a better way to do it.
         //jquery seems to be particular about spawning checkboxes already checked.
         
-        $htmlToAppend.append(`${taskList[i].task}
-        <img src="./images/edit-icon.svg" class="editBtn" alt="edit icon"/>
-        <img src="./images/trash-icon.svg" class="deleteBtn" alt="delete icon"/>
-        </li>`);
+        $htmlToAppend.append(`<td class="task">${taskList[i].task}</td>
+        <td><img src="./images/edit-icon.svg" class="editBtn" alt="edit icon"/></td>
+        <td><img src="./images/trash-icon.svg" class="deleteBtn" alt="delete icon"/></td>
+        </tr>`);
         //this whole section creates one line of html to be appended for each item in the loops
 
         $('#taskList').append($htmlToAppend);
