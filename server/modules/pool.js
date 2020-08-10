@@ -1,7 +1,7 @@
 const pg = require( 'pg' );
 const url = require('url');
 //requires pg into the file
-
+const Pool = pg.Pool;
 let config = {};
 
 if (process.env.DATABASE_URL) {
@@ -14,9 +14,11 @@ if (process.env.DATABASE_URL) {
         host: params.hostname,
         port: params.port,
         database: params.pathname.split('/')[1],
-        ssl: true
-    }
-    
+        ssl: true,
+        max: 10,
+        idleTimeoutMillis: 30000
+    };
+
 } else {
     config = {
         database: 'weekend_to_do_app',
@@ -24,7 +26,7 @@ if (process.env.DATABASE_URL) {
         port: 5432
     };
 }
-const pool = new pg.Pool(config);//constructs a new pool that links to our Postgres DB
+const pool = new Pool(config);//constructs a new pool that links to our Postgres DB
 
 pool.on( 'connect', () => {
     console.log( 'connected to postgres!' );
