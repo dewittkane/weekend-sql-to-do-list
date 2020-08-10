@@ -107,7 +107,7 @@ function deleteFromList() {
     console.log( 'ID of task to be deleted:', idToBeDeleted );
     //grabs id from data attribute of clicked element
 
-    let status = $( this ).parent().data( 'completed' );
+    let status = $( this ).parent().parent().data( 'completed' );
     let text;
 
     if ( status ) {
