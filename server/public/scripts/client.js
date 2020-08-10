@@ -34,7 +34,7 @@ function putEdit() {
     console.log( `ID of ${id} text to be replaced with ${newText.text}` );
     //collects updated info from DOM
     
-    if (newText == '') {
+    if (newText.text == '') {
         swal('Please enter some text for the task. Want to get it off of the list? Try the delete button!')
     } else {
         $.ajax({
